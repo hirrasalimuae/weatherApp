@@ -14,7 +14,6 @@ struct MainView: View {
     @State var selectedLocation: Location?
     // TODO: - Replace alert with toast
     @State private var duplicateLocation: Location?
-    @State private var isShowingSettings = false
     @State var viewModel: LocationsViewModel
 
     var body: some View {
@@ -29,33 +28,8 @@ struct MainView: View {
                 background(for: colorScheme)
             }
             .navigationTitle("Locations")
-            .navigationDestination(for: Location.self) { [weak viewModel] location in
-                if let viewModel {
-                    weatherView(location, viewModel: viewModel)
-                }
-            }
-            .toolbarBackground(.thinMaterial, for: .automatic)
-            #if os(iOS)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        isShowingSettings = true
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    EditButton()
-                }
-            }
-            #endif
-            .sheet(isPresented: $isShowingSettings) {
-                SettingsView() {
-                    isShowingSettings = false
-                }
-                .preferredColorScheme(colorScheme)
-            }
+          
+           
         } detail: {
             background(for: colorScheme)
                 .overlay {
@@ -141,25 +115,6 @@ struct MainView: View {
         }
     }
     
-    private func weatherView(_ location: Location, viewModel: LocationsViewModel) -> some View {
-        WeatherView(
-            viewModel: .init(
-                location: location
-            ),
-            weather: viewModel.weather(for: location)
-        )
-        .preferredColorScheme(colorScheme)
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.large)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                WeatherCardTrailingHeaderTextView(text: Date.now.in(timeZone: .from(identifier: location.timeZoneIdentifier ?? .empty)).formatted(date: .omitted, time: .shortened))
-                    .padding(.trailing, 8)
-            }
-        }
-        #endif
-        .navigationTitle(location.nickname)
-    }
     
     private func background(for colorScheme: ColorScheme) -> some View {
         Image(colorScheme == .light ? .lightBackground : .darkBackground)
